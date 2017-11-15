@@ -1,0 +1,13 @@
+Create your own Programming Language:
+Deliverables:
+- Team name and members
+- Documentation of your language: Purpose of the language, how to program in your language, list of keywords/your PL dictionary, etc...
+- An example program written in your new language
+- Mention how does your language handles syntax errors
+- Source code of your compiler/parser
+- References used
+
+Note that you can use any programming language to implement your PL except Javascript. Good luck.
+
+Good read and very useful guide:
+http://scratch-lang.notimetoplay.org/index.html (Links to an external site.)Links to an external site.
