@@ -63,11 +63,11 @@ public class main {
         } else {
 
             switch (languageMap.getValueForMapKey(key)) {
-                case "-":
+                case "minus":
                     //subtract();
 
                     break;
-                case "+":
+                case "plus":
                     //add();
 
                     break;
