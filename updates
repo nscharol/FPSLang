@@ -1,0 +1,198 @@
+package language;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+import java.util.Stack;
+
+/**
+ * Created by mrowland on 11/15/2017 for FPSLang.
+ */
+
+public class main {
+	public static Stack<Integer> operatingStack = new Stack<>();
+	public static LanguageMap languageMap;
+	public static Map<String, String> varMap = new HashMap<>(); //changed
+	
+	
+	public static void main (String[] args) {
+		languageMap= new LanguageMap();
+		
+
+		String filepath = "sourceFile.txt";
+
+		Scanner sourceFile = null;
+		try {
+			sourceFile = new Scanner(new File(filepath));
+		} catch (FileNotFoundException exception) {
+			System.out.println("File not found. " + exception);
+		}
+
+		assert (sourceFile != null);
+
+		LanguageParser parser = new LanguageParser(sourceFile);
+
+		while (parser.hasNextLine()) {
+			String[] currentLine = parser.getNextLine();
+			if (languageMap.getValueForMapKey(currentLine[0]) == "comment")
+				continue;
+			else for (int i = 0; i < currentLine.length; i++) {
+				if(currentLine[i]=="player"){//changed
+					if(languageMap.containsKey(currentLine[i+1])==true){ //checks if using a keyword for a variable name
+						System.out.println("Cannot use Keyword as a player name");
+					}
+					else{
+						varMap.put(currentLine[i+1],currentLine[i+2]);//ex player x 2  would set the variable x to 2      
+						i++;  // put will replace the variable if already present in the variable map
+						i++;
+						//changed
+					}///
+				}
+				else{
+					evaluateNextOperation(currentLine[i]);
+				}
+			}
+		}
+
+	}
+
+	public static Integer testIfStringIsInteger (String str) {
+		Integer intTest = null;
+		try {
+			intTest = new Integer(str);
+		} catch (NumberFormatException exception) {
+
+		}
+
+		return intTest;
+
+	}
+
+	public static String evaluateNextOperation(String key) {
+
+		int currentStackContents = operatingStack.size();
+		if(varMap.containsKey(key)){//changed
+			key = varMap.get(key);//
+		}//
+		
+		Integer integer = new Integer(testIfStringIsInteger(key));
+    
+		if (integer != null) {
+			operatingStack.push(integer);
+		} 
+		else {
+
+
+			switch (languageMap.getValueForMapKey(key)) {
+			case "add"://changed
+				if(operatingStack.size()<=2)
+					System.out.println("Must be enough Integers on the stack");
+				else{
+					int firstPop = operatingStack.pop();
+					int secondPop = operatingStack.pop();
+					operatingStack.add(secondPop-firstPop);
+				}
+				//subtract();
+
+				break;
+			case "subtract":  //changed
+				if(operatingStack.size()<=2)
+					System.out.println("Must be enough Integers on the stack");
+				else{
+					int firstPop = operatingStack.pop();
+					int secondPop = operatingStack.pop();
+					operatingStack.add(secondPop+firstPop);
+				}				break;
+			case "multiply"://changed
+				if(operatingStack.size()<=2)
+					System.out.println("Must be enough Integers on the stack");
+				else{
+					int firstPop = operatingStack.pop();
+					int secondPop = operatingStack.pop();
+					operatingStack.add(secondPop*firstPop);
+				}				break;
+			case "divide"://changed
+				if(operatingStack.size()<=2)
+					System.out.println("Must be enough Integers on the stack");
+				else{
+					int firstPop = operatingStack.pop();
+					int secondPop = operatingStack.pop();
+					operatingStack.add(secondPop/firstPop);
+				}				break;
+			case "power"://changed
+				if(operatingStack.size()<=2)
+					System.out.println("Must be enough Integers on the stack");
+				else{
+					int firstPop = operatingStack.pop();
+					int secondPop = operatingStack.pop();
+					operatingStack.add((int) Math.pow(secondPop,firstPop));
+				}				break;
+			case "spawn"://changed
+				if(operatingStack.isEmpty())
+					System.out.println("There is nothing on the stack");
+				else{
+					System.out.println(operatingStack.pop());
+				}				break;
+
+			default:
+
+			}
+
+		}
+
+		String lastOperation = key;
+		return lastOperation;
+	}
+}
+////////////////////////////////////////////////////// LanguageMap///////////////////////////////////////////////////////
+package language;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Created by mrowland on 11/19/2017 for FPSLang.
+ */
+
+public class LanguageMap {
+    private Map<String, String> langMap;
+
+    
+    public LanguageMap () {
+        langMap = new HashMap<>();
+
+        langMap.put("forward", "add");
+        langMap.put("back" , "subtract");
+        langMap.put("jump", "multiply");
+        langMap.put("crouch", "divide");
+        langMap.put("zerg", "power");
+        langMap.put("spawn", "print");
+        langMap.put("$", "comment");
+        langMap.put("Pro", "Bool True");  // ideas/unsure how to implement boolean and chars
+        langMap.put("Newb", "Bool False");//
+        langMap.put("Pew", "Char");  /// 
+        langMap.put("player", "variable");
+    }
+    
+
+
+    public String getValueForMapKey(String key) {
+        return langMap.get(key);
+    }
+
+    public void addVariableToMap (String key, String value) {
+        langMap.put(key, value);
+    }
+
+    public void updateVariableInMap (String key, String value) {
+        langMap.replace(key, value);
+    }
+
+	public boolean containsKey(String string) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+}
