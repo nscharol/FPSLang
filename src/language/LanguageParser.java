@@ -1,6 +1,5 @@
 package language;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -10,26 +9,43 @@ import java.util.Scanner;
  */
 
 public class LanguageParser {
-    private List<String[]> lineList;
-    private int currentLine = -1;
+    private List<String> tokenList;
+    // private List<String[]> lineList;
+    private int currentTokenIndex = -1;
 
     public LanguageParser(Scanner file) {
-        lineList = new ArrayList<>();
-        while(file.hasNextLine()) {
+        tokenList = new ArrayList<>();
+        /*while(file.hasNextToken()) {
             lineList.add(file.nextLine().split("[\n\t ]"));
         }
+         */
+
+        while(file.hasNext())
+            tokenList.add(file.next());
     }
 
     public int numberOfLines() {
-        return lineList.size();
+        return tokenList.size();
     }
 
+    /*
     public String[] getNextLine() {
-        currentLine++;
-        return lineList.get(currentLine);
+        currentTokenIndex++;
+        return lineList.get(currentTokenIndex);
+    }
+    */
+
+    public String getNextToken() {
+        currentTokenIndex++;
+        return tokenList.get(currentTokenIndex);
     }
 
-    public boolean hasNextLine() {
-        return (currentLine++ <= lineList.size()-1);
+    public boolean hasNextToken() {
+        return (currentTokenIndex++ <= tokenList.size()-1);
     }
+
+    public int currentTokenIndex() {
+        return currentTokenIndex;
+    }
+
 }
