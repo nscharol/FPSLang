@@ -10,11 +10,11 @@ import java.util.Stack;
  */
 
 public class main {
-    public static Stack<Integer> operatingStack = new Stack<>();
-    public static LanguageMap languageMap;
+    private static Stack<Integer> operatingStack = new Stack<>();
+    private static LanguageMap languageMap;
 
     public static void main (String[] args) {
-        languageMap= new LanguageMap();
+        languageMap = new LanguageMap();
 
         String filepath = "sourceFile.txt";
 
@@ -29,13 +29,25 @@ public class main {
 
         LanguageParser parser = new LanguageParser(sourceFile);
 
-        while (parser.hasNextLine()) {
-            String[] currentLine = parser.getNextLine();
-            if (languageMap.getValueForMapKey(currentLine[0]) == "comment")
+        while (parser.hasNextToken()) {
+            String currentToken = parser.getNextToken();
+            if (languageMap.getValueForMapKey(currentToken).equals("comment")) {
+                while (parser.hasNextToken() && !parser.getNextToken().equals("endComment"))
+                    continue;
                 continue;
-            else for (int i = 0; i < currentLine.length; i++) {
-                evaluateNextOperation(currentLine[i]);
             }
+            else if (languageMap.getValueForMapKey(currentToken).equals("newVar")) {
+                String varName = parser.getNextToken();
+                String varData = parser.getNextToken();
+                addVariable(varName, varData);
+            }
+            else if (languageMap.getValueForMapKey(currentToken).equals("updateVar")) {
+                //variable must be able to do math with itself, and then be updated and stored
+                //use local public method "updateVariable(String varName, String value)" to update
+            }
+            else //might need something else here
+                evaluateNextOperation(currentToken);
+
         }
 
     }
@@ -44,40 +56,90 @@ public class main {
         Integer intTest = null;
         try {
             intTest = new Integer(str);
-        } catch (NumberFormatException exception) {
-
-        }
-
+        } catch (NumberFormatException exception) {}
         return intTest;
-
     }
 
-    public static String evaluateNextOperation(String key) {
+    /*
+        evaluateNextOperation receives current keyword from main, and will push to the stack if the current key is an integer, else
+     */
+    public static void evaluateNextOperation(String currentToken) {
 
-        int currentStackContents = operatingStack.size();
-
-        Integer integer = new Integer(testIfStringIsInteger(key));
+        Integer integer = testIfStringIsInteger(currentToken);
 
         if (integer != null) {
             operatingStack.push(integer);
         } else {
 
-            switch (languageMap.getValueForMapKey(key)) {
-                case "minus":
-                    //subtract();
+            switch (languageMap.getValueForMapKey(currentToken)) {
 
+                case "add":
+                    if (operatingStack.size() <= 2)
+                        System.out.println("Must be enough Integers on the stack");
+                    else {
+                        int firstPop = operatingStack.pop();
+                        int secondPop = operatingStack.pop();
+                        operatingStack.add(secondPop + firstPop);
+                    }
                     break;
-                case "plus":
-                    //add();
 
+                case "subtract":
+                    if (operatingStack.size() <= 2)
+                        System.out.println("Must be enough Integers on the stack");
+                    else {
+                        int firstPop = operatingStack.pop();
+                        int secondPop = operatingStack.pop();
+                        operatingStack.add(secondPop - firstPop);
+                    }
+                    break;
+
+                case "multiply":
+                    if (operatingStack.size() <= 2)
+                        System.out.println("Must be enough Integers on the stack");
+                    else {
+                        int firstPop = operatingStack.pop();
+                        int secondPop = operatingStack.pop();
+                        operatingStack.add(secondPop * firstPop);
+                    }
+                    break;
+
+                case "divide":
+                    if (operatingStack.size() <= 2)
+                        System.out.println("Must be enough Integers on the stack");
+                    else {
+                        int firstPop = operatingStack.pop();
+                        int secondPop = operatingStack.pop();
+                        operatingStack.add(secondPop / firstPop);
+                    }
+                    break;
+
+                case "power":
+                    if (operatingStack.size() <= 2)
+                        System.out.println("Must be enough Integers on the stack");
+                    else {
+                        int firstPop = operatingStack.pop();
+                        int secondPop = operatingStack.pop();
+                        operatingStack.add((int) Math.pow(secondPop, firstPop));
+                    }
+                    break;
+                case "print":
+                    if (operatingStack.isEmpty())
+                        System.out.println("There is nothing on the stack");
+                    else {
+                        System.out.println(operatingStack.pop());
+                    }
                     break;
                 default:
-
+                    throw new IllegalArgumentException("Syntax error. Keyword or Variable \"" + currentToken + "\" is undefined");
             }
-
         }
+    }
 
-        String lastOperation = key;
-        return lastOperation;
+    public static void addVariable(String varName, String value) {
+        languageMap.addToVariableMap(varName, value);
+    }
+
+    public static void updateVariable(String varName, String value){
+        languageMap.updateVariableInVariableMap(varName, value);
     }
 }
